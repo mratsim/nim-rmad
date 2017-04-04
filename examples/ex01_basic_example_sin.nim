@@ -1,3 +1,5 @@
+## source: https://github.com/Rufflewind/revad
+
 import ../rmad.nim
 
 let t = newContext[float32]()

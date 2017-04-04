@@ -31,7 +31,7 @@ proc `+`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
 
 proc `-`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
   #TODO Check that both Variable use the same tape/context
-  #TODO Check gradient of a + a
+  #TODO Check gradient of a - a
   return Variable[T](
            tape: lhs.tape,
            value: lhs.value + rhs.value,
@@ -55,7 +55,7 @@ proc `*`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
 
 proc `/`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
   #TODO Check that both Variable use the same tape/context
-  #TODO Check gradient of a * a
+  #TODO Check gradient of a / a
   return Variable[T](
            tape: lhs.tape,
            value: lhs.value * rhs.value,
@@ -64,6 +64,8 @@ proc `/`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
              rhs.index, -lhs.value / (rhs.value.pow(2))
              )
            )
+
+#### Trigonometric functions
 
 proc cos*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
   return Variable[T](
@@ -87,6 +89,29 @@ proc tan*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
            index: v.tape.push_unary(v.index, 1 + t.pow(2))
            )
 
+proc arccos*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
+  return Variable[T](
+           tape: v.tape,
+           value: v.value.arccos(),
+           index: v.tape.push_unary(v.index, - 1 / sqrt(1 - v.value.pow(2)))
+           )
+
+proc arcsin*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
+  return Variable[T](
+           tape: v.tape,
+           value: v.value.arcsin(),
+           index: v.tape.push_unary(v.index, 1 / sqrt(1 - v.value.pow(2)))
+           )
+
+proc arctan*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
+  return Variable[T](
+           tape: v.tape,
+           value: v.value.arctan(),
+           index: v.tape.push_unary(v.index, 1 / (1 + v.value.pow(2)))
+           )
+
+#### Exponential and logarithms
+
 proc exp*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
   let e = v.value.exp()
   return Variable[T](
@@ -101,3 +126,62 @@ proc ln*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
            value: v.value.ln(),
            index: v.tape.push_unary(v.index, 1 / v.value)
            )
+
+proc pow*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
+  #TODO Check that both Variable use the same tape/context
+  #TODO Check gradient of pow(a, 0)
+  let p = lhs.pow(rhs)
+  return Variable[T](
+           tape: lhs.tape,
+           value: p,
+           index: lhs.tape.push_binary(
+             lhs.index, rhs * lhs.pow(rhs-1),
+             rhs.index, p * ln(lhs)
+             )
+           )
+
+proc log10*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
+  const ln10 = ln(10)
+  return Variable[T](
+           tape: v.tape,
+           value: v.value.log10(),
+           index: v.tape.push_unary(v.index, 1 / (v.value * ln10))
+           )
+
+proc sqrt*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
+  let s = v.value.sqrt()
+  return Variable[T](
+           tape: v.tape,
+           value: s,
+           index: v.tape.push_unary(v.index, 1 / (2 * s))
+           )
+
+#### Hyperbolic functions
+## Todo rewrite rules for hyperbolic functions
+
+proc cosh*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
+  return Variable[T](
+           tape: v.tape,
+           value: v.value.cosh(),
+           index: v.tape.push_unary(v.index, v.value.sinh())
+           )
+
+proc sinh*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
+  return Variable[T](
+           tape: v.tape,
+           value: v.value.cosh(),
+           index: v.tape.push_unary(v.index, v.value.sinh())
+           )
+
+proc tanh*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
+  let t = v.value.tanh()
+  return Variable[T](
+           tape: v.tape,
+           value: t,
+           index: v.tape.push_unary(v.index, 1 - t.pow(2))
+           )
+
+# acosh, asinh, atanh are not included in Nim Math library
+# pending RFC https://github.com/nim-lang/Nim/issues/3745,
+# they can be defined in the following manner
+# proc atanh(x: float): float {.importc: "atanh", header: "<math.h>".}
