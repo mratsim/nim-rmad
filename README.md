@@ -50,12 +50,33 @@ Everything can be differentiated as long as it can be computed, even a for-loop.
 This is a key advantage for Recurrent Neural Networks.
 Plus, if you implement your own layer you don't need to derive the function yourself.
 
+## Weaknesses
+In place operation of variables (including changing its value) is not supported. As Facebook says, it is a [hard](http://pytorch.org/docs/autograd.html#in-place-operations-on-variables) [matter](https://github.com/pytorch/pytorch/issues/823).
+
 ## Status
 This library is in its infancy, only +, *, sin, exp and the sigmoid function are implemented. Once every basic ops is done, every function that are based on them (including loop) can be differentiated.
 
 Also matrices support is still pending. It might work with minimal modifications but it's not tested.
 
 As I am developing a ML library based on RMAD, API may (and probably will) change to suit my needs.
+
+## Todo
+
+- [ ] Implement the trigonometric and hyperbolic function from Nim `math` module
+- [ ] Approximate equal for floats comparison
+- [ ] Add tests
+    - basic operations: grad x+x = grad 2x
+    - infinity check grad 1/0
+    - trigonometric operations: grad tan x = grad sin x / cos x
+    - hyperbolic functions
+- [ ] Support matrices and vectors
+- [ ] GPU support
+- [ ] Support gradient freezing (for transfer learning)
+
+Low priority
+- [ ] Support 2nd order and n-th order differentiation
+- [ ] Computation graph pretty-printing
+- [ ] Canonical form and rewrite rules: 2 / (1 + e^-x) => 2 * x.sigmoid()
 
 ## License
 Copyright 2017 Mamy André-Ratsimbazafy
