@@ -29,6 +29,18 @@ proc `+`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
              )
            )
 
+proc `-`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
+  #TODO Check that both Variable use the same tape/context
+  #TODO Check gradient of a + a
+  return Variable[T](
+           tape: lhs.tape,
+           value: lhs.value + rhs.value,
+           index: lhs.tape.push_binary(
+             lhs.index, 1,
+             rhs.index, -1
+             )
+           )
+
 proc `*`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
   #TODO Check that both Variable use the same tape/context
   #TODO Check gradient of a * a
@@ -41,6 +53,25 @@ proc `*`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
              )
            )
 
+proc `/`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
+  #TODO Check that both Variable use the same tape/context
+  #TODO Check gradient of a * a
+  return Variable[T](
+           tape: lhs.tape,
+           value: lhs.value * rhs.value,
+           index: lhs.tape.push_binary(
+             lhs.index, rhs.value,
+             rhs.index, -lhs.value / (rhs.value.pow(2))
+             )
+           )
+
+proc cos*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
+  return Variable[T](
+           tape: v.tape,
+           value: v.value.cos(),
+           index: v.tape.push_unary(v.index, -v.value.sin())
+           )
+
 proc sin*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
   return Variable[T](
            tape: v.tape,
@@ -48,9 +79,25 @@ proc sin*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
            index: v.tape.push_unary(v.index, v.value.cos())
            )
 
-proc exp*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
+proc tan*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
+  let t = v.value.tan()
   return Variable[T](
            tape: v.tape,
-           value: v.value.exp(),
-           index: v.tape.push_unary(v.index, v.value.exp())
+           value: t,
+           index: v.tape.push_unary(v.index, 1 + t.pow(2))
+           )
+
+proc exp*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
+  let e = v.value.exp()
+  return Variable[T](
+           tape: v.tape,
+           value: e,
+           index: v.tape.push_unary(v.index, e)
+           )
+
+proc ln*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
+  return Variable[T](
+           tape: v.tape,
+           value: v.value.ln(),
+           index: v.tape.push_unary(v.index, 1 / v.value)
            )

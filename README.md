@@ -66,7 +66,8 @@ As I am developing a ML library based on RMAD, API may (and probably will) chang
 - [ ] Approximate equal for floats comparison
 - [ ] Add tests
     - basic operations: grad x+x = grad 2x
-    - infinity check grad 1/0
+    - Operator precedence: a + x * y
+    - infinity behaviour: grad 1/0
     - trigonometric operations: grad tan x = grad sin x / cos x
     - hyperbolic functions
 - [ ] Support matrices and vectors
@@ -80,4 +81,5 @@ Low priority
 
 ## License
 Copyright 2017 Mamy André-Ratsimbazafy
+
 The Apache License version 2
