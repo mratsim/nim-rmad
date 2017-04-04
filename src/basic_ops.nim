@@ -17,6 +17,8 @@
 
 import math
 
+#### Basic operations
+
 proc `+`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
   #TODO Check that both Variable use the same tape/context
   #TODO Check gradient of a + a
@@ -56,12 +58,14 @@ proc `*`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
 proc `/`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
   #TODO Check that both Variable use the same tape/context
   #TODO Check gradient of a / a
+  let inv = 1 / rhs.value
+  let d = lhs.value * inv
   return Variable[T](
            tape: lhs.tape,
-           value: lhs.value * rhs.value,
+           value: d,
            index: lhs.tape.push_binary(
-             lhs.index, rhs.value,
-             rhs.index, -lhs.value / (rhs.value.pow(2))
+             lhs.index, inv,
+             rhs.index, - d * inv
              )
            )
 
@@ -185,3 +189,87 @@ proc tanh*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
 # pending RFC https://github.com/nim-lang/Nim/issues/3745,
 # they can be defined in the following manner
 # proc atanh(x: float): float {.importc: "atanh", header: "<math.h>".}
+
+
+#### Basic operations with constants
+
+# constant on the right
+proc `+`*[T](lhs: Variable[T], rhs: T): Variable[T] {.noSideEffect.} =
+  return Variable[T](
+           tape: lhs.tape,
+           value: lhs.value + rhs,
+           index: lhs.tape.push_unary(lhs.index, 1)
+           )
+
+# constant on the left
+proc `+`*[T](lhs: T, rhs: Variable[T]): Variable[T] {.noSideEffect.} =
+  return Variable[T](
+           tape: rhs.tape,
+           value: lhs + rhs.value,
+           index: rhs.tape.push_unary(rhs.index, 1)
+           )
+
+# constant on the right
+proc `-`*[T](lhs: Variable[T], rhs: T): Variable[T] {.noSideEffect.} =
+  return Variable[T](
+           tape: lhs.tape,
+           value: lhs.value - rhs,
+           index: lhs.tape.push_unary(lhs.index, 1)
+           )
+# constant on the left
+proc `-`*[T](lhs: T, rhs: Variable[T]): Variable[T] {.noSideEffect.} =
+  return Variable[T](
+           tape: rhs.tape,
+           value: lhs - rhs.value,
+           index: rhs.tape.push_unary(rhs.index, -1)
+           )
+
+# constant on the right
+proc `*`*[T](lhs: Variable[T], rhs: T): Variable[T] {.noSideEffect.} =
+  return Variable[T](
+           tape: lhs.tape,
+           value: lhs.value * rhs,
+           index: lhs.tape.push_unary(lhs.index, rhs)
+           )
+
+# constant on the left
+proc `*`*[T](lhs: T, rhs: Variable[T]): Variable[T] {.noSideEffect.} =
+  return Variable[T](
+           tape: rhs.tape,
+           value: lhs * rhs.value,
+           index: rhs.tape.push_unary(rhs.index, lhs)
+           )
+
+# constant on the right
+proc `/`*[T](lhs: Variable[T], rhs: T): Variable[T] {.noSideEffect.} =
+  return Variable[T](
+           tape: lhs.tape,
+           value: lhs.value / rhs,
+           index: lhs.tape.push_unary(lhs.index, 1/rhs)
+           )
+
+# constant on the left
+proc `/`*[T](lhs: T, rhs: Variable[T]): Variable[T] {.noSideEffect.} =
+  let d = lhs / rhs.value
+  return Variable[T](
+           tape: rhs.tape,
+           value: d,
+           index: rhs.tape.push_unary(rhs.index, - d / rhs)
+           )
+
+# constant on the right
+proc pow*[T](lhs: Variable[T], rhs: T): Variable[T] {.noSideEffect.} =
+  return Variable[T](
+           tape: lhs.tape,
+           value: lhs.value.pow(rhs),
+           index: lhs.tape.push_unary(lhs.index, rhs * lhs.pow(rhs-1))
+           )
+
+# constant on the left
+proc pow*[T](lhs: T, rhs: Variable[T]): Variable[T] {.noSideEffect.} =
+  let p = lhs.pow(rhs)
+  return Variable[T](
+           tape: rhs.tape,
+           value: p,
+           index: rhs.tape.push_unary(rhs.index, p * ln(lhs))
+           )
