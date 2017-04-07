@@ -4,9 +4,13 @@ import ../rmad.nim, unittest
 # Considerations https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
 # Implementation of a general solution is probably best on R
 # https://github.com/PredictiveEcology/fpCompare
-proc `=~`(x, y: float): bool = (abs(x-y) < 1e-8)
+proc `=~`[T:SomeReal, U:SomeNumber](x, y: T|U): bool = (abs(x.T-y.T) < 1e-16)
 
 suite "Scalar input autodifferentiation":
+    test "Equality comparison sanity check":
+        check: not (1'f32 =~ 1.0000001)
+        check: 1'f32 =~ 1.00000001
+
     test "Context initialization":
         when compiles(newContext[float32]()):
             check: true
@@ -52,7 +56,7 @@ suite "Scalar input autodifferentiation":
         check: gn.wrt(a) =~ 1 / 5
         check: gn.wrt(b) =~ 10 * -1/(5*5)
 
-    test "Several gradients, based on same variables in same context":
+    test "Multiple gradients, based on same variables in same context":
         let ctx = newContext[float32]()
         let a = ctx.variable(10)
         let b = ctx.variable(5)
@@ -81,21 +85,62 @@ suite "Scalar input autodifferentiation":
         check: gn.wrt(a) =~ 1 / 5
         check: gn.wrt(b) =~ 10 * -1/(5*5)
 
-    test "Mixed variables and literals":
+    test "Mixed variables and literals + Automatic conversion":
+        #TODO: support for integer literal
         let ctx = newContext[float32]()
 
-        let x1 = ctx.variable(1.5)
-        let x2 = ctx.variable(2)
+        let a = ctx.variable(1.5)
 
-        let y = x1 * x2 + x1 + 5
+        when compiles(2 * a):
+            check: true
 
-        check: y.value == 9.5
+        let m = 2 * a
+        let n = a * 2
+        let p = 2 + a
+        let q = a + 2
+        let r = 2 - a
+        let s = a - 2
+        let t = a / 2
+        let u = 2 / a
 
-        let g = y.grad
+        check: m.grad.wrt(a) =~ 2
+        check: n.grad.wrt(a) =~ 2
+        check: p.grad.wrt(a) =~ 1
+        check: q.grad.wrt(a) =~ 1
+        check: r.grad.wrt(a) =~ -1
+        check: s.grad.wrt(a) =~ 1
+        check: t.grad.wrt(a) =~ 1/2
+        check: u.grad.wrt(a) =~ -2 / (1.5 * 1.5)
 
-        check: g.wrt(x1) =~ 3
-        check: g.wrt(x2) =~ 1.5
+    test "Gradients of a+a, a-a, a/a, a*a, a^0 ...":
+        let ctx = newContext[float32]()
 
+        let a = ctx.variable(10)
+
+        let m = a+a+a+a+a
+        let n = 5 * a
+        let p = a*a*a*a*a
+        let q = pow(a,5)
+        let r = a - a
+        let s = a / a
+        let t = pow(a,0)
+
+        let gm = m.grad
+        let gn = n.grad
+        let gp = p.grad
+        let gq = q.grad
+        let gr = r.grad
+        let gs = s.grad
+        let gt = t.grad
+
+
+        check: gm.wrt(a) =~ 5
+        check: gm.wrt(a) =~ gn.wrt(a)
+        check: gp.wrt(a) =~ 50000
+        check: gp.wrt(a) =~ gq.wrt(a)
+        check: gr.wrt(a) =~ 0
+        check: gs.wrt(a) =~ 0
+        check: gt.wrt(a) =~ 0
 
 #   TODO: test "Different contexts prevention":
-#   TODO: gradient of a + a, a - a, a / a, a * a, a ^ 0
+

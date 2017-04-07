@@ -54,7 +54,7 @@ Plus, if you implement your own layer you don't need to derive the function your
 In place operation of variables (including changing its value) is not supported. As Facebook says, it is a [hard](http://pytorch.org/docs/autograd.html#in-place-operations-on-variables) [matter](https://github.com/pytorch/pytorch/issues/823).
 
 ## Status
-There are no tests !!!
+Tests suite is incomplete.
 Matrices support is pending. It might work with minimal modifications but it's not tested.
 
 As I am developing a ML library based on RMAD, API may (and probably will) change to suit my needs.
@@ -62,9 +62,9 @@ As I am developing a ML library based on RMAD, API may (and probably will) chang
 ## Todo
 
 - [x] Implement the trigonometric and hyperbolic functions from Nim `math` module
-- [ ] Approximate equal for floats comparison
+- [x] Approximate equal for floats comparison in testing
 - [ ] Add tests
-    - basic operations: grad x+x = grad 2x
+    - [x] basic operations: grad x+x = grad 2x
     - Operator precedence: a + x * y
     - infinity behaviour: grad 1/0
     - trigonometric operations: grad tan x = grad sin x / cos x

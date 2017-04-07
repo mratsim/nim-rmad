@@ -184,82 +184,82 @@ proc tanh*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
 #### Basic operations with constants
 
 # constant on the right
-proc `+`*[T](lhs: Variable[T], rhs: T): Variable[T] {.noSideEffect.} =
+proc `+`*[T;U: SomeNumber](lhs: Variable[T], rhs: U): Variable[T] {.noSideEffect.} =
   return Variable[T](
            tape: lhs.tape,
-           value: lhs.value + rhs,
+           value: lhs.value + rhs.T,
            index: lhs.tape.push_unary(lhs.index, 1)
            )
 
 # constant on the left
-proc `+`*[T](lhs: T, rhs: Variable[T]): Variable[T] {.noSideEffect.} =
+proc `+`*[T;U: SomeNumber](lhs: U, rhs: Variable[T]): Variable[T] {.noSideEffect.} =
   return Variable[T](
            tape: rhs.tape,
-           value: lhs + rhs.value,
+           value: lhs.T + rhs.value,
            index: rhs.tape.push_unary(rhs.index, 1)
            )
 
 # constant on the right
-proc `-`*[T](lhs: Variable[T], rhs: T): Variable[T] {.noSideEffect.} =
+proc `-`*[T;U: SomeNumber](lhs: Variable[T], rhs: U): Variable[T] {.noSideEffect.} =
   return Variable[T](
            tape: lhs.tape,
-           value: lhs.value - rhs,
+           value: lhs.value - rhs.T,
            index: lhs.tape.push_unary(lhs.index, 1)
            )
 # constant on the left
-proc `-`*[T](lhs: T, rhs: Variable[T]): Variable[T] {.noSideEffect.} =
+proc `-`*[T;U: SomeNumber](lhs: U, rhs: Variable[T]): Variable[T] {.noSideEffect.} =
   return Variable[T](
            tape: rhs.tape,
-           value: lhs - rhs.value,
+           value: lhs.T - rhs.value,
            index: rhs.tape.push_unary(rhs.index, -1)
            )
 
 # constant on the right
-proc `*`*[T](lhs: Variable[T], rhs: T): Variable[T] {.noSideEffect.} =
+proc `*`*[T;U: SomeNumber](lhs: Variable[T], rhs: U): Variable[T] {.noSideEffect.} =
   return Variable[T](
            tape: lhs.tape,
-           value: lhs.value * rhs,
-           index: lhs.tape.push_unary(lhs.index, rhs)
+           value: lhs.value * rhs.T,
+           index: lhs.tape.push_unary(lhs.index, rhs.T)
            )
 
 # constant on the left
-proc `*`*[T](lhs: T, rhs: Variable[T]): Variable[T] {.noSideEffect.} =
+proc `*`*[T;U: SomeNumber](lhs: U, rhs: Variable[T]): Variable[T] {.noSideEffect.} =
   return Variable[T](
            tape: rhs.tape,
-           value: lhs * rhs.value,
-           index: rhs.tape.push_unary(rhs.index, lhs)
+           value: lhs.T * rhs.value,
+           index: rhs.tape.push_unary(rhs.index, lhs.T)
            )
 
 # constant on the right
-proc `/`*[T](lhs: Variable[T], rhs: T): Variable[T] {.noSideEffect.} =
+proc `/`*[T;U: SomeNumber](lhs: Variable[T], rhs: U): Variable[T] {.noSideEffect.} =
   return Variable[T](
            tape: lhs.tape,
-           value: lhs.value / rhs,
-           index: lhs.tape.push_unary(lhs.index, 1/rhs)
+           value: lhs.value / rhs.T,
+           index: lhs.tape.push_unary(lhs.index, 1/rhs.U)
            )
 
 # constant on the left
-proc `/`*[T](lhs: T, rhs: Variable[T]): Variable[T] {.noSideEffect.} =
-  let d = lhs / rhs.value
+proc `/`*[T;U: SomeNumber](lhs: U, rhs: Variable[T]): Variable[T] {.noSideEffect.} =
+  let d = lhs.T / rhs.value
   return Variable[T](
            tape: rhs.tape,
            value: d,
-           index: rhs.tape.push_unary(rhs.index, - d / rhs)
+           index: rhs.tape.push_unary(rhs.index, - d / rhs.value)
            )
 
 # constant on the right
-proc pow*[T](lhs: Variable[T], rhs: T): Variable[T] {.noSideEffect.} =
+proc pow*[T;U: SomeNumber](lhs: Variable[T], rhs: U): Variable[T] {.noSideEffect.} =
   return Variable[T](
            tape: lhs.tape,
-           value: lhs.value.pow(rhs),
-           index: lhs.tape.push_unary(lhs.index, rhs * lhs.pow(rhs-1))
+           value: lhs.value.pow(rhs.T),
+           index: lhs.tape.push_unary(lhs.index, rhs.T * lhs.value.pow(rhs.T-1))
            )
 
 # constant on the left
-proc pow*[T](lhs: T, rhs: Variable[T]): Variable[T] {.noSideEffect.} =
-  let p = lhs.pow(rhs)
+proc pow*[T;U: SomeNumber](lhs: U, rhs: Variable[T]): Variable[T] {.noSideEffect.} =
+  let p = lhs.T.pow(rhs.value)
   return Variable[T](
            tape: rhs.tape,
            value: p,
-           index: rhs.tape.push_unary(rhs.index, p * ln(lhs))
+           index: rhs.tape.push_unary(rhs.index, p * ln(lhs.T))
            )
