@@ -214,10 +214,18 @@ suite "Scalar input autodifferentiation":
         check: n.value.classify == fcNegInf
         check: n.grad.wrt(a).classify == fcNan
 
+    test "Operator precedence":
+        let ctx = newContext[float32]()
 
-#   TODO: test "Different contexts prevention":
+        let a = ctx.variable(10)
+        let b = ctx.variable(5)
+        let c = ctx.variable(PI/6)
+        let d = ctx.variable(3)
 
-    test "Prevent operations on 2 different contexts":
+        let y = a + b * c.sin() - 27 / d.pow(2) * 10 # 10 + 5 * 0.5 - 27 / 9 * 10 = 7.5 - 30 = -17.5
+        check: y.value =~ -17.5
+
+    test "Prevent operations on 2 variables from different contexts":
         let ctx1 = newContext[float32]()
         let ctx2 = newContext[float32]()
 

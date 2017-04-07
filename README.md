@@ -61,19 +61,12 @@ As I am developing a ML library based on RMAD, API may (and probably will) chang
 
 ## Todo
 
-- [x] Implement the trigonometric and hyperbolic functions from Nim `math` module
-- [x] Approximate equal for floats comparison in testing
-- [ ] Add tests
-    - [x] basic operations: grad x+x = grad 2x
-    - Operator precedence: a + x * y
-    - infinity behaviour: grad 1/0
-    - [x] trigonometric operations: grad tan x = grad sin x / cos x
-    - [x] hyperbolic functions
 - [ ] Support matrices and vectors
 - [ ] GPU support
 - [ ] Support gradient freezing (for transfer learning)
 
 Low priority
+- [ ] Detect and prevent operation with variables from different contexts: https://github.com/mratsim/nim-rmad/issues/1
 - [ ] Support 2nd order and n-th order differentiation
 - [ ] Computation graph pretty-printing
 - [ ] Canonical form and rewrite rules: 2 / (1 + e^-x) => 2 * x.sigmoid()
