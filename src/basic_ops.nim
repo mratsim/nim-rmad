@@ -124,18 +124,18 @@ proc ln*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
            )
 
 proc pow*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
-  let p = lhs.pow(rhs)
+  let p = lhs.value.pow(rhs.value)
   return Variable[T](
            tape: lhs.tape,
            value: p,
            index: lhs.tape.push_binary(
-             lhs.index, rhs * lhs.pow(rhs-1),
-             rhs.index, p * ln(lhs)
+             lhs.index, rhs.value * lhs.value.pow(rhs.value-1),
+             rhs.index, p * ln(lhs.value)
              )
            )
 
 proc log10*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
-  const ln10 = ln(10)
+  const ln10 = ln(10.T)
   return Variable[T](
            tape: v.tape,
            value: v.value.log10(),
@@ -164,7 +164,7 @@ proc sinh*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
   return Variable[T](
            tape: v.tape,
            value: v.value.cosh(),
-           index: v.tape.push_unary(v.index, v.value.sinh())
+           index: v.tape.push_unary(v.index, v.value.cosh())
            )
 
 proc tanh*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =

@@ -67,8 +67,8 @@ As I am developing a ML library based on RMAD, API may (and probably will) chang
     - [x] basic operations: grad x+x = grad 2x
     - Operator precedence: a + x * y
     - infinity behaviour: grad 1/0
-    - trigonometric operations: grad tan x = grad sin x / cos x
-    - hyperbolic functions
+    - [x] trigonometric operations: grad tan x = grad sin x / cos x
+    - [x] hyperbolic functions
 - [ ] Support matrices and vectors
 - [ ] GPU support
 - [ ] Support gradient freezing (for transfer learning)

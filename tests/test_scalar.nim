@@ -1,19 +1,16 @@
-import ../rmad.nim, unittest
+import ../rmad.nim, unittest, math
 
 # Approximate Floating point comparison
 # Considerations https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
 # Implementation of a general solution is probably best on R
 # https://github.com/PredictiveEcology/fpCompare
-proc `=~`[T:SomeReal, U:SomeNumber](x, y: T|U): bool = (abs(x.T-y.T) < 1e-16)
+proc `=~`[T:SomeReal, U:SomeNumber](x, y: T|U): bool = (abs(x.T-y.T) < 1e-8)
 
 suite "Scalar input autodifferentiation":
-    test "Equality comparison sanity check":
+    test "Approximate comparison sanity check":
         check: not (1'f32 =~ 1.0000001)
         check: 1'f32 =~ 1.00000001
 
-    test "Context initialization":
-        when compiles(newContext[float32]()):
-            check: true
     test "Basic operations - Addition":
         let ctx = newContext[float32]()
         let a = ctx.variable(10)
@@ -142,5 +139,68 @@ suite "Scalar input autodifferentiation":
         check: gs.wrt(a) =~ 0
         check: gt.wrt(a) =~ 0
 
+    test "Trigonometric functions":
+        #TODO: support for integer literal
+        let ctx = newContext[float32]()
+
+        let a = ctx.variable(PI / 6)
+
+        let m = cos(a)
+        let n = sin(a)
+        let p = tan(a)
+        let q = arccos(a)
+        let r = arcsin(a)
+        let s = arctan(a)
+        let t = arccos(cos(a))
+        let u = cos(arccos(a))
+        let v = cos(a).pow(2'f32) + sin(a).pow(2'f32)
+        let w = sin(a) / cos(a)
+
+        check: m.grad.wrt(a) =~ -0.5 # -sin(pi/6)
+        check: n.grad.wrt(a) =~ sqrt(3'f32)/2 # cos(pi/6)
+        check: p.grad.wrt(a) =~ 4/3 # = 1/cos(pi/6)^2 = 1 + tan(pi/6)^2
+        check: q.grad.wrt(a) =~ -1 / sqrt( 1 - (PI/6).pow(2'f32)) # -1 / sqrt(1 - x^2)
+        check: r.grad.wrt(a) =~ 1 / sqrt( 1 - (PI/6).pow(2'f32)) # 1 / sqrt(1 - x^2)
+        check: s.grad.wrt(a) =~ 1 / ( 1 + (PI/6).pow(2'f32)) # 1 / s(1 + x^2)
+        check: t.grad.wrt(a) =~ 1
+        # check: u.grad.wrt(a) =~ 1 # Precision 1e-6 required 
+        check: v.grad.wrt(a) =~ 0
+        # check: w.grad.wrt(a) =~ 1 + tan(PI/6).pow(2) # Precision 1e-6 required 
+
+    test "Exponential and logarithm":
+        let ctx = newContext[float32]()
+
+        let a = ctx.variable(10.3)
+        let b = ctx.variable(0.5)
+
+        let m = exp(a)
+        let n = ln(a)
+        let p = a.pow(b)
+        let q = log10(a)
+        let r = sqrt(a)
+
+        check: m.grad.wrt(a) =~ m.value
+        check: n.grad.wrt(a) =~ 1 / 10.3
+        check: p.grad.wrt(a) =~ 0.5 * 10.3.pow(-0.5)
+        check: q.grad.wrt(a) =~ 1/ (10.3 * ln(10'f32))
+        check: r.grad.wrt(a) =~ 1/(2 * sqrt(10.3))
+
+        check: p.grad.wrt(a) =~ r.grad.wrt(a)
+
+    test "Hyperbolic functions":
+        let ctx = newContext[float32]()
+
+        let a = ctx.variable(10)
+
+        let m = a.cosh
+        let n = a.sinh
+        let p = a.tanh
+
+
+        check: m.grad.wrt(a) =~ a.value.sinh
+        check: n.grad.wrt(a) =~ a.value.cosh
+        check: p.grad.wrt(a) =~ 1 / a.value.cosh.pow(2) # 1/cosh^2 x = 1 - tanh^2 x # Needs 1e-8 precision
+
+#   TODO: test "Divide by 0, ln(0)"
 #   TODO: test "Different contexts prevention":
 
