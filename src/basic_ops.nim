@@ -20,8 +20,6 @@ import math
 #### Basic operations
 
 proc `+`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
-  #TODO Check that both Variable use the same tape/context
-  #TODO Check gradient of a + a
   return Variable[T](
            tape: lhs.tape,
            value: lhs.value + rhs.value,
@@ -32,11 +30,9 @@ proc `+`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
            )
 
 proc `-`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
-  #TODO Check that both Variable use the same tape/context
-  #TODO Check gradient of a - a
   return Variable[T](
            tape: lhs.tape,
-           value: lhs.value + rhs.value,
+           value: lhs.value - rhs.value,
            index: lhs.tape.push_binary(
              lhs.index, 1,
              rhs.index, -1
@@ -44,8 +40,6 @@ proc `-`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
            )
 
 proc `*`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
-  #TODO Check that both Variable use the same tape/context
-  #TODO Check gradient of a * a
   return Variable[T](
            tape: lhs.tape,
            value: lhs.value * rhs.value,
@@ -56,8 +50,6 @@ proc `*`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
            )
 
 proc `/`*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
-  #TODO Check that both Variable use the same tape/context
-  #TODO Check gradient of a / a
   let inv = 1 / rhs.value
   let d = lhs.value * inv
   return Variable[T](
@@ -132,8 +124,6 @@ proc ln*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
            )
 
 proc pow*[T](lhs: Variable[T], rhs: Variable[T]): Variable[T] {.noSideEffect.} =
-  #TODO Check that both Variable use the same tape/context
-  #TODO Check gradient of pow(a, 0)
   let p = lhs.pow(rhs)
   return Variable[T](
            tape: lhs.tape,
