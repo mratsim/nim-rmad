@@ -217,3 +217,12 @@ suite "Scalar input autodifferentiation":
 
 #   TODO: test "Different contexts prevention":
 
+    test "Prevent operations on 2 different contexts":
+        let ctx1 = newContext[float32]()
+        let ctx2 = newContext[float32]()
+
+        let a = ctx1.variable(10)
+        let b = ctx2.variable(5)
+
+        when compiles(a + b):
+            check: false
