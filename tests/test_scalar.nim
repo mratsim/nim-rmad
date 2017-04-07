@@ -201,6 +201,19 @@ suite "Scalar input autodifferentiation":
         check: n.grad.wrt(a) =~ a.value.cosh
         check: p.grad.wrt(a) =~ 1 / a.value.cosh.pow(2) # 1/cosh^2 x = 1 - tanh^2 x # Needs 1e-8 precision
 
-#   TODO: test "Divide by 0, ln(0)"
+    test "Infinity and NaNs":
+        let ctx = newContext[float32]()
+
+        let a = ctx.variable(10)
+        let b = ctx.variable(5)
+
+        let m = a / (b - b)
+        let n = ln(b - b)
+
+        check: m.grad.wrt(a).classify == fcNan
+        check: n.value.classify == fcNegInf
+        check: n.grad.wrt(a).classify == fcNan
+
+
 #   TODO: test "Different contexts prevention":
 
