@@ -54,7 +54,8 @@ Plus, if you implement your own layer you don't need to derive the function your
 In place operation of variables (including changing its value) is not supported. As Facebook says, it is a [hard](http://pytorch.org/docs/autograd.html#in-place-operations-on-variables) [matter](https://github.com/pytorch/pytorch/issues/823).
 
 ## Status
-Tests suite is incomplete.
+
+Current examples are from [Karpathy's Neural Network guide](https://karpathy.github.io/neuralnets/).
 Matrices support is pending. It might work with minimal modifications but it's not tested.
 
 As I am developing a ML library based on RMAD, API may (and probably will) change to suit my needs.
@@ -62,6 +63,8 @@ As I am developing a ML library based on RMAD, API may (and probably will) chang
 ## Todo
 
 - [ ] Support matrices and vectors
+- [ ] Example usage
+- [ ] Setting up continuous integration
 - [ ] GPU support
 - [ ] Support gradient freezing (for transfer learning)
 
