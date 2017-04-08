@@ -83,7 +83,6 @@ suite "Scalar input autodifferentiation":
         check: gn.wrt(b) =~ 10 * -1/(5*5)
 
     test "Mixed variables and literals + Automatic conversion":
-        #TODO: support for integer literal
         let ctx = newContext[float32]()
 
         let a = ctx.variable(1.5)
@@ -140,7 +139,6 @@ suite "Scalar input autodifferentiation":
         check: gt.wrt(a) =~ 0
 
     test "Trigonometric functions":
-        #TODO: support for integer literal
         let ctx = newContext[float32]()
 
         let a = ctx.variable(PI / 6)

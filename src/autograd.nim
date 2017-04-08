@@ -34,6 +34,8 @@ type
     ## Wrapper for the list of gradients with regards to each inputs
     derivs: ref seq[T]
 
+# Templates in Nim are always inlined. They are used for performance reason to save on function calls costs.
+
 proc newContext*[T]: Context[T] {.noSideEffect.} =
   ## Initialize a context (Tape / Wengert list)
   result.nodes = new seq[Node[T]]
@@ -47,7 +49,7 @@ template push[T](t: Context[T], node: Node[T]) =
   ## Append a new operation to the context
   t.nodes[].add(node) #Appending in Nim is add not push
 
-proc push_nullary[T](t: Context[T]): int {.noSideEffect.} =
+proc push_nullary[T](t: Context[T]): int {.noSideEffect, inline.} =
   ## Append a nullary operation to the context
   let len = t.len()
   t.push(
@@ -58,7 +60,7 @@ proc push_nullary[T](t: Context[T]): int {.noSideEffect.} =
     )
   return len
 
-proc push_unary[T](t: Context[T], dep0: int, weight0: T): int {.noSideEffect.} =
+proc push_unary[T](t: Context[T], dep0: int, weight0: T): int {.noSideEffect, inline.} =
   ## Append a unary operation to the context
   let len = t.len()
   t.push(
@@ -69,7 +71,7 @@ proc push_unary[T](t: Context[T], dep0: int, weight0: T): int {.noSideEffect.} =
     )
   return len
 
-proc push_binary[T](t: Context[T], dep0: int, weight0: T, dep1: int, weight1: T): int {.noSideEffect.} =
+proc push_binary[T](t: Context[T], dep0: int, weight0: T, dep1: int, weight1: T): int {.noSideEffect, inline.} =
   ## Append a binary operation to the context
   let len = t.len()
   t.push(

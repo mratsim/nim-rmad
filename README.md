@@ -67,9 +67,12 @@ As I am developing a ML library based on RMAD, API may (and probably will) chang
 
 Low priority
 - [ ] Detect and prevent operation with variables from different contexts: https://github.com/mratsim/nim-rmad/issues/1
+- [ ] Tests & profiling: memory usage, speed - overhead, bottlenecks, inline procs/template
+- [ ] Benchmarks: comparison with PyTorch, TensorFlow, Theano, HIPS/autograd
 - [ ] Support 2nd order and n-th order differentiation
 - [ ] Computation graph pretty-printing
 - [ ] Canonical form and rewrite rules: 2 / (1 + e^-x) => 2 * x.sigmoid()
+
 
 ## License
 Copyright 2017 Mamy André-Ratsimbazafy
