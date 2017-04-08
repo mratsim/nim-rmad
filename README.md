@@ -9,7 +9,7 @@ During the learning phase, neural networks needs to know the contribution of eac
 RMAD, also called autograd is an efficient way to automatically differentiate any transformation applied during the forward pass.
 
 ## Examples
-Examples are available in the examples folder.
+Examples are available in the examples folder. You will find examples from differentiating addition and substraction to building a Support Vector machine and a neural network with 2-hidden layers.
 
 Here is a port of Andrej Karpathy's Javascript old Neural Network [tutorial](https://karpathy.github.io/neuralnets/).
 
@@ -54,16 +54,13 @@ Plus, if you implement your own layer you don't need to derive the function your
 In place operation of variables (including changing its value) is not supported. As Facebook says, it is a [hard](http://pytorch.org/docs/autograd.html#in-place-operations-on-variables) [matter](https://github.com/pytorch/pytorch/issues/823).
 
 ## Status
-
-Current examples are from [Karpathy's Neural Network guide](https://karpathy.github.io/neuralnets/).
-Matrices support is pending. It might work with minimal modifications but it's not tested.
+Matrices support is pending.
 
 As I am developing a ML library based on RMAD, API may (and probably will) change to suit my needs.
 
 ## Todo
 
 - [ ] Support matrices and vectors
-- [ ] Example usage
 - [ ] Setting up continuous integration
 - [ ] GPU support
 - [ ] Support gradient freezing (for transfer learning)
