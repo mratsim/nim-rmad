@@ -39,11 +39,11 @@ proc newContext*[T]: Context[T] {.noSideEffect.} =
   result.nodes = new seq[Node[T]]
   result.nodes[] = @[]
 
-proc len[T](t: Context[T]): int {.noSideEffect.} =
+template len[T](t: Context[T]): int =
   ## Returns the number of operations applied in the context
-  return t.nodes[].len()
+  t.nodes[].len()
 
-proc push[T](t: Context[T], node: Node[T]) {.noSideEffect.} =
+template push[T](t: Context[T], node: Node[T]) =
   ## Append a new operation to the context
   t.nodes[].add(node) #Appending in Nim is add not push
 
@@ -88,9 +88,9 @@ proc variable*[T](t: Context[T], value: T): Variable[T] {.noSideEffect.} =
            index: t.push_nullary()
            )
 
-proc value*[T](v: Variable[T]): T {.noSideEffect.} =
+template value*[T](v: Variable[T]): T  =
   ## Unwrap the value from its context
-  return v.value
+  v.value
 
 proc grad*[T](v: Variable[T], pull: T = 1): Grad[T] =
   ## Compute the gradients
@@ -113,6 +113,6 @@ proc grad*[T](v: Variable[T], pull: T = 1): Grad[T] =
 
   result.derivs[] = derivs
 
-proc wrt*[T](g: Grad[T], v: Variable[T]): T {.noSideEffect.} =
+template wrt*[T](g: Grad[T], v: Variable[T]): T =
   ## Get the gradient with regards to a specific input value
-  return g.derivs[v.index]
+  g.derivs[v.index]
