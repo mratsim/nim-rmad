@@ -4,7 +4,7 @@ import ../rmad.nim, unittest, math
 # Considerations https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
 # Implementation of a general solution is probably best on R
 # https://github.com/PredictiveEcology/fpCompare
-proc `=~`[T:SomeReal, U:SomeNumber](x, y: T|U): bool = (abs(x.T-y.T) < 1e-8)
+proc `=~`[T:SomeReal, U:SomeNumber](x, y: T|U): bool = (abs(x.T-y.T) < 1e-08)
 
 suite "Scalar input autodifferentiation":
     test "Approximate comparison sanity check":
@@ -197,7 +197,7 @@ suite "Scalar input autodifferentiation":
 
         check: m.grad.wrt(a) =~ a.value.sinh
         check: n.grad.wrt(a) =~ a.value.cosh
-        check: p.grad.wrt(a) =~ 1 / a.value.cosh.pow(2) # 1/cosh^2 x = 1 - tanh^2 x # Needs 1e-8 precision
+        check: p.grad.wrt(a) =~ 1 / a.value.cosh.pow(2) # 1/cosh^2 x = 1 - tanh^2 x # Needs 1e-8 precision, gradient is exactly 0 on lhs.
 
     test "Infinity and NaNs":
         let ctx = newContext[float32]()
@@ -208,7 +208,7 @@ suite "Scalar input autodifferentiation":
         let m = a / (b - b)
         let n = ln(b - b)
 
-        check: m.grad.wrt(a).classify == fcNan
+        check: m.grad.wrt(a).classify == fcInf
         check: n.value.classify == fcNegInf
         check: n.grad.wrt(a).classify == fcNan
 

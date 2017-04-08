@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+template bp_sigmoid[T](sigmoid: T): BackProp[T] =
+  (gradient: T) => sigmoid * (1 - sigmoid)
+
 proc sigmoid*[T](v: Variable[T]): Variable[T] {.noSideEffect.} =
   let s = 1 / (1 + exp(-v.value))
   return Variable[T](
            tape: v.tape,
            value: s,
-           index: v.tape.push_unary(v.index, s * (1-s))
+           index: v.tape.push_unary(v.index, bp_sigmoid(s))
            )
