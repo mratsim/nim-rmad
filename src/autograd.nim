@@ -52,9 +52,9 @@ type
     weights: array[2, BackProp[T]]
     parents: array[2,int] #ref indices to parent nodes
 
-  Context*[T] = object
+  Context*[T] = ref object
     ## Tape / Wengert list. Contains the list of applied operations
-    nodes: ref seq[Node[T]]
+    nodes: seq[Node[T]]
 
   Variable*[T] = object
     ## Wrapper for values
@@ -70,16 +70,16 @@ type
 
 proc newContext*[T]: Context[T] {.noSideEffect.} =
   ## Initialize a context (Tape / Wengert list)
-  result.nodes = new seq[Node[T]]
-  result.nodes[] = @[]
+  new result
+  result.nodes = newSeq[Node[T]]()
 
 template len[T](t: Context[T]): int =
   ## Returns the number of operations applied in the context
-  t.nodes[].len()
+  t.nodes.len()
 
 template push[T](t: Context[T], node: Node[T]) =
   ## Append a new operation to the context
-  t.nodes[].add(node) #Appending in Nim is add not push
+  t.nodes.add(node) #Appending in Nim is add not push
 
 proc push_nullary[T](t: Context[T]): int {.noSideEffect.} =
   ## Append a nullary operation to the context
@@ -135,7 +135,7 @@ proc grad*[T](v: Variable[T], pull: T = 1): Grad[T] =
   # Computation is done with gradient set to 1 for the final output value
   # If needed it can be set to an arbitrary value (e.g. -1)
   let len = v.tape.len()
-  let nodes = v.tape.nodes[]
+  let nodes = v.tape.nodes
 
   result.derivs = new seq[T]
 

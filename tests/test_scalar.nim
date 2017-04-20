@@ -230,5 +230,7 @@ suite "Scalar input autodifferentiation":
         let a = ctx1.variable(10)
         let b = ctx2.variable(5)
 
+        check: ctx1 != ctx2
+
         when compiles(a + b):
             check: false
