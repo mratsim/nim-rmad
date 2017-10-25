@@ -1,6 +1,13 @@
 # RMAD
 Reverse-mode auto-differentiation for Nim. (a.k.a - autograd)
 
+## Status
+STALLED
+
+Nim-rmad works great for scalars. I don't think there is a need for a pure scalar non-vector/non-matrix autograd however. Feel free to prove me wrong by either asking features, doing PR or adopting/forking this package.
+
+Autograd development on matrices/vectors/n-dimensional tensors is done in [Arraymancer/autograd](https://github.com/mratsim/Arraymancer).
+
 ## Goal
 Neural networks pass an input through a series of transformations (layers) to get an output value called forward pass.
 
@@ -52,11 +59,6 @@ Plus, if you implement your own layer you don't need to derive the function your
 
 ## Weaknesses
 In place operation of variables (including changing its value) is not supported. As Facebook says, it is a [hard](http://pytorch.org/docs/autograd.html#in-place-operations-on-variables) [matter](https://github.com/pytorch/pytorch/issues/823).
-
-## Status
-Matrices support is pending.
-
-As I am developing a ML library based on RMAD, API may (and probably will) change to suit my needs.
 
 ## Todo
 
